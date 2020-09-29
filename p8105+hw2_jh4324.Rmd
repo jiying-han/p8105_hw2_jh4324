@@ -153,10 +153,37 @@ How many distinct stations serve the A train? Of the stations that serve the A t
 reformat_nyc_df1 = 
   filter(reformat_nyc_df, route_number == "A") 
 distinct(reformat_nyc_df1,station_name)
-
 filter(reformat_nyc_df1, ada == TRUE ) %>% 
   distinct(station_name)
 ```
 
 ## Problem 3
+
+
+First, clean the data in pols-month.csv. 
+```{r pols-month}
+
+month_df = 
+  tibble(
+    month = 1:12,
+    month_name = month.name,
+  )
+
+pols_month_df = 
+  read_csv("./data/fivethirtyeight_datasets/pols-month.csv") %>% 
+  separate(mon, sep="-", into = c("year", "month", "day")) %>% 
+  mutate(month = as.integer(month))
+
+pols_monthname_df = 
+  left_join(pols_month_df,month_df, by = "month") %>% 
+    select(-month) %>% 
+    mutate(
+      dem = prez_dem + gov_dem + sen_dem + rep_dem,
+      gop = prez_gop + gov_gop + sen_gop + rep_gop,
+      president = dem + gop
+    ) %>% 
+  select(-prez_dem, -prez_gop, -day, -dem, -gop)
+   
+  
+```
 
