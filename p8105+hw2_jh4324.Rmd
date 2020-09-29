@@ -64,10 +64,99 @@ This dataset contains information from the Mr.Trashwheel collector in Baltimore.
 
 
 
-
-
-
-
 ## Problem 2
+
+```{r}
+nyc_df = 
+  read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv")
+str(nyc_df)
+```
+
+Read and clean the data; 
+```{r}
+nyc_df = 
+  read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>%
+  janitor::clean_names() %>% 
+  select(line:entry,vending,ada) %>% 
+  mutate(entry = recode(entry, "YES" = TRUE,  "NO" = FALSE) %>% 
+           as.numeric()
+         )
+```
+
+
+
+
+
+paragraph about this dataset 
+– explain briefly what variables the dataset contains, describe your data cleaning steps so far, and give the dimension (rows x columns) of the resulting dataset. Are these data tidy?
+
+
+
+How many distinct stations are there?
+```{r}
+distinct_station = distinct(nyc_df,station_name)
+```
+
+
+How many stations are ADA compliant?
+```{r}
+station_ada = 
+  tibble(
+    station_name = pull(nyc_df,station_name),
+    ada = as.numeric(pull(nyc_df,ada)),
+           ) 
+filter(station_ada, ada == 1)
+distinct_list = distinct(station_ada, station_name)
+number = nrow(distinct_list)
+```
+
+
+
+What proportion of station entrances / exits without vending allow entrance?
+```{r}
+entra_novend = 
+  read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>%
+  janitor::clean_names() %>% 
+  select(entrance_type:vending) %>% 
+  mutate(vending = recode(vending, "YES" = TRUE, "NO" = FALSE)) %>% 
+  filter(vending == FALSE)
+entrance_exit_novend = nrow(entra_novend)
+entra_novend_exit = 
+  mutate(entra_novend, entry = recode(entry,"YES" = TRUE, "NO" = FALSE )) %>% 
+  filter(entry == TRUE)
+entrance_noexit_novend = nrow(entra_novend_exit)
+proportion = entrance_noexit_novend/entrance_exit_novend
+```
+The proportion is `r proportion`
+
+Reformat data so that route number and route name are distinct variables. 
+```{r}
+nyc_df = 
+  read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>%
+  janitor::clean_names() %>% 
+  mutate(route8 = as.character(route8)) %>% 
+  mutate(route9 = as.character(route9)) %>%
+  mutate(route10 = as.character(route10)) %>% 
+  mutate(route11 = as.character(route11)) 
+
+reformat_nyc_df = 
+  pivot_longer(
+    nyc_df, route1:route11,
+    names_to = "route_name",
+    values_to = "route_number"
+  )
+```
+
+
+How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?
+```{r}
+reformat_nyc_df1 = 
+  filter(reformat_nyc_df, route_number == "A") 
+distinct(reformat_nyc_df1,station_name)
+
+filter(reformat_nyc_df1, ada == TRUE ) %>% 
+  distinct(station_name)
+```
+
 ## Problem 3
 
