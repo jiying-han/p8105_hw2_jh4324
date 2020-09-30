@@ -77,7 +77,7 @@ nyc_df =
   mutate(entry = recode(entry, "YES" = TRUE,  "NO" = FALSE) %>% 
            as.numeric()
          )
-str(nyc_df)
+nyc_df
 ```
 
 
@@ -126,6 +126,7 @@ station_ada =
 apa_comp_df = 
   filter(station_ada, ada == 1) 
 distinct(apa_comp_df, station_name, line)
+
 ```
 
 * There are `r distinct(apa_comp_df, station_name, line) %>% nrow()` stations are ADA compliant.
@@ -166,6 +167,8 @@ reformat_nyc_df =
     names_to = "route_name",
     values_to = "route_number"
   )
+
+reformat_nyc_df
 ```
 
 
@@ -213,6 +216,7 @@ pols_monthname_df =
   select(-prez_dem, -prez_gop, -day, -dem, -gop) %>% 
   relocate(year, month) 
 
+pols_monthname_df
 ```
 
 
@@ -231,6 +235,8 @@ snp_monthname_df =
   rename(month = month_name) %>% 
   arrange(year, month) %>% 
   relocate(year, month) 
+
+snp_monthname_df
 ```
 
  
@@ -259,6 +265,8 @@ umemp_monthname_df =
   select(-month) %>% 
   rename(month = month_name) %>% 
   relocate(year, month)
+
+umemp_monthname_df
 ```
 
  
@@ -269,6 +277,8 @@ umemp_monthname_df =
 final_df = 
   left_join(pols_monthname_df,snp_monthname_df, by = c("year","month")) %>% 
   left_join(umemp_monthname_df, by = c("year","month"))
+
+final_df
 ```
 
 
