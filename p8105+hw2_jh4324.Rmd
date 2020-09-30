@@ -104,7 +104,7 @@ apa_comp_df =
 distinct(apa_comp_df, station_name, line)
 ```
 
-
+`r distinct(apa_comp_df, station_name, line) %>% nrow()` stations are ADA compliant
 
 What proportion of station entrances / exits without vending allow entrance?
 ```{r}
