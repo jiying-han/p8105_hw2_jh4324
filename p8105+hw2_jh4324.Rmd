@@ -67,7 +67,8 @@ This dataset contains information from the Mr.Trashwheel collector in Baltimore.
 ## Problem 2
 
 
-Read and clean the data.
+
+* Read and clean the data.
 ```{r}
 nyc_df = 
   read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>%
@@ -80,18 +81,41 @@ str(nyc_df)
 ```
 
 
-Paragraph about this dataset .
-– explain briefly what variables the dataset contains, describe your data cleaning steps so far, and give the dimension (rows x columns) of the resulting dataset. Are these data tidy?
-This dataset contains 
+
+* This dataset contains `r names(nyc_df)` variables. 
+
+\ There are `r ncol(nyc_df)`  columns and `r nrow(nyc_df)` rows are contained in this dataset. From my point of view, the original data isnt' a tidy data, for several reasons:
+
+\ 1. In the head line, from route1-route11, they all belong to a same variable and are supposed to put in a single column.
+
+\ 2. The value in route1:route11 are different.
+
+\ 3. Values in _Entry_ and _Vending_ are _YES_ or _NO_, insteading of _1_ or _0_. It's might be a trouble for people to process the data.
 
 
-How many distinct stations are there?
+
+* For clean data steps:
+
+\ 1. I clean the data's name, which make sure that all the names are composed of lower case. It's so convinent for me to do the later process. 
+
+\ 2.  I select interest data form the whole dataset.
+
+\ 3. I convert the content in _entry_ column to numbers. 
+
+\ 4. Later, I will convert columns  _route8:route11_ type to make sure that all route columns keep the same type.
+
+
+
+
+
 ```{r}
 distinct_station = distinct(nyc_df,station_name, line)
 ```
 
+* There are `r distinct_station %>% nrow()` distinct stations.
 
-How many stations are ADA compliant?
+
+
 ```{r}
 station_ada = 
   tibble(
@@ -104,9 +128,10 @@ apa_comp_df =
 distinct(apa_comp_df, station_name, line)
 ```
 
-`r distinct(apa_comp_df, station_name, line) %>% nrow()` stations are ADA compliant
+* There are `r distinct(apa_comp_df, station_name, line) %>% nrow()` stations are ADA compliant.
 
-What proportion of station entrances / exits without vending allow entrance?
+
+
 ```{r}
 entra_novend = 
   read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>%
@@ -121,9 +146,11 @@ entra_novend_exit =
 entrance_noexit_novend = nrow(entra_novend_exit)
 proportion = entrance_noexit_novend/entrance_exit_novend
 ```
-The proportion is `r proportion`
+* The proportion of station entrances / exits without vending allow entrance is `r proportion` 
 
-Reformat data so that route number and route name are distinct variables. 
+
+
+* Reformat data 
 ```{r}
 nyc_df = 
   read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>%
@@ -142,7 +169,9 @@ reformat_nyc_df =
 ```
 
 
-How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?
+
+
+
 ```{r}
 reformat_nyc_df1 = 
   filter(reformat_nyc_df, route_number == "A") 
@@ -151,10 +180,14 @@ filter(reformat_nyc_df1, ada == TRUE ) %>%
   distinct(station_name,line)
 ```
 
+* There are `r distinct(reformat_nyc_df1,station_name,line) %>% nrow()` stations serve the A train, and `r filter(reformat_nyc_df1, ada == TRUE ) %>% distinct(station_name,line) %>% nrow()` are ADA compliant.
+
+
+
 ## Problem 3
 
 
-First, clean the data in pols-month.csv. 
+* First, clean the data in pols-month.csv
 ```{r pols-month}
 
 month_df = 
@@ -185,7 +218,7 @@ pols_monthname_df =
 
 
 
-Second, clean the data in snp.
+* Second, clean the data in snp.csv
 ```{r snp_df}
 snp_df = 
   read_csv("./data/fivethirtyeight_datasets/snp.csv") %>% 
@@ -200,10 +233,10 @@ snp_monthname_df =
   relocate(year, month) 
 ```
 
+ 
 
 
-
-Third, tidy the unemployment data so that it can be merged with the previous datasets. 
+* Third, tidy the unemployment data
 ```{r umemp_df}
 month2_df = 
   tibble(
@@ -228,9 +261,10 @@ umemp_monthname_df =
   relocate(year, month)
 ```
 
+ 
 
 
-Join the datasets by merging snp into pols, and merging unemployment into the result.
+* Merging snp into pols, and merging unemployment into the result
 ```{r}
 final_df = 
   left_join(pols_monthname_df,snp_monthname_df, by = c("year","month")) %>% 
@@ -238,4 +272,22 @@ final_df =
 ```
 
 
-Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
+* Summary for the three datasets.
+
+
+There are three dataset and finally there were merged into a single dataset. 
+  * For _plots_month_ dataset, 
+
+ There are _`r names(pols_monthname_df)`_ variables. I separate the _date_ into three columns- _year_, _month_ and _day_, after that I convert the month name to number. Then add a variable called _president_. Finally select the columns and delete _prez_dem_, _prez_gop_, _day_, _dem_, _gop_. Thus, the processed pols_month dataset has `r nrow(pols_monthname_df)` rows, `r ncol(pols_monthname_df)` columns, the dimension of it is ( `r dim(pols_monthname_df)` ), the range of year is ( `r range(pols_monthname_df$year)` ).
+
+  * For _snp_ dataset, 
+
+I separate the date into three columns- _year_, _month_ and _day_, after that I change the type of these three columns variables, and convert the month name to number. Then select the columns and delete _month name_ and _day_. Thus, the processed dataset has _`r names( snp_monthname_df)`_ variables,  and `r nrow(snp_monthname_df)` rows, `r ncol(snp_monthname_df)` columns, the dimension of it is ( `r dim(snp_monthname_df)`) , the range of year is ( `r range(snp_monthname_df$year)` ).
+
+  * For _unemployment_ dataset, 
+
+There are `r names(umemp_monthname_df)` variables in processed unemployment dataset. I combine the month columns from _jan_ to _dec_, after that I use the month name to them. Then relocate _year_ and _month_ . Thus, the processed pols_month dataset has `r nrow(umemp_monthname_df)` rows , `r ncol(umemp_monthname_df)` columns, the dimension of it is ( `r dim(umemp_monthname_df)` ), the range of year is ( `r range(umemp_monthname_df$year)` ) .
+
+  * For the resulting dataset, 
+
+I merged above three processed datasets, and the resulting dataset has _`r names(final_df)`_ variables. It has `r nrow(final_df)` rows and `r ncol(final_df)` columns. The dimension is ( `r dim(final_df)` ). Range of year is ( `r range(final_df$year)` ).
